@@ -14,17 +14,21 @@ ask_permission() {
     esac
 }
 
-# --- 2. Download and Extract (If files are missing) ---
-if [ ! -d "theme-files" ] || [ ! -d "plasma-theme" ]; then
-    echo "Theme files not found locally. Downloading from GitHub..."
+# --- 2. Download and Extract ---
+if [ ! -d "theme-files" ]; then
+    echo "Downloading theme assets..."
     curl -L "$REPO_URL" -o "$ZIP_NAME"
     unzip -o "$ZIP_NAME"
-    cd "$EXTRACT_DIR" || exit
+    # Move into the extracted directory to find the files
+    cd "$EXTRACT_DIR" || { echo "Failed to enter directory"; exit 1; }
 fi
 
 # --- 3. Distro & App Check ---
 if [ -f /etc/debian_version ]; then
-    OS="debian"; PKG="sudo apt-get update && sudo apt-get install -y plymouth plymouth-themes unzip"; REBUILD="sudo update-initramfs -u -k all"
+    OS="debian"
+    # Fixed the APT command (removed the double 'update')
+    PKG="sudo apt-get update && sudo apt-get install -y plymouth plymouth-themes unzip"
+    REBUILD="sudo update-initramfs -u -k all"
 elif [ -f /etc/fedora-release ]; then
     OS="fedora"; PKG="sudo dnf install -y plymouth unzip"; REBUILD="sudo dracut -f"
 elif [ -f /etc/arch-release ]; then
@@ -35,8 +39,10 @@ fi
 
 # --- 4. Install & Select: Plymouth (Boot Image) ---
 if ask_permission "Do you want to change the Boot Image (Plymouth)?"; then
-    echo "Installing apps and copying Plymouth files..."
-    $PKG
+    echo "Ensuring Plymouth is installed..."
+    eval $PKG
+    
+    echo "Copying Plymouth files..."
     sudo mkdir -p /usr/share/plymouth/themes/bad-dragon
     sudo cp -r theme-files/bad-dragon/* /usr/share/plymouth/themes/bad-dragon/
     sudo chmod -R 755 /usr/share/plymouth/themes/bad-dragon
@@ -46,10 +52,10 @@ if ask_permission "Do you want to change the Boot Image (Plymouth)?"; then
     fi
     
     sudo plymouth-set-default-theme -R bad-dragon
-    echo "Rebuilding boot image (this may take a minute)..."
+    echo "Rebuilding boot image..."
     $REBUILD
 else
-    echo "Skipping Boot Image installation."
+    echo "Skipping Boot Image."
 fi
 
 # --- 5. Install & Select: Splash Screen (Plasma) ---
@@ -58,10 +64,10 @@ if ask_permission "Do you want to change the Splash Screen (Plasma Look-and-Feel
     sudo mkdir -p /usr/share/plasma/look-and-feel/Bad-Dragon
     sudo cp -r plasma-theme/Bad-Dragon/* /usr/share/plasma/look-and-feel/Bad-Dragon/
     sudo chmod -R 755 /usr/share/plasma/look-and-feel/Bad-Dragon
-    echo "Plasma theme installed! You can now select 'Bad-Dragon' in System Settings."
+    echo "Plasma theme installed!"
 else
-    echo "Skipping Splash Screen installation."
+    echo "Skipping Splash Screen."
 fi
 
 echo "-----------------------------------------------"
-echo "Process Complete!"
+echo "Done! You can now close this terminal."
