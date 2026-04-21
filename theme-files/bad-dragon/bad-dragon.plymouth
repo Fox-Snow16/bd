@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Bad Dragon
+Description=Custom Bad Dragon Boot Splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/bad-dragon
+ScriptFile=/usr/share/plymouth/themes/bad-dragon/bad-dragon.script

@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "N/A",
+                "Name": "N/A"
+            }
+        ],
+        "Category": "Bad Dragon, horny and nsfw",
+        "Description": "Bad Dragon turned into a launch screen, not made very good sorry about that, but I tried",
+        "Id": "Bad-Dragon",
+        "License": "GPLv3",
+        "Name": "Bad Dragon",
+        "Website": ""
+    },
+    "Keywords": "Desktop;Workspace;Appearance;Look and Feel;Logout;Lock;Suspend;Shutdown;Hibernate;",
+    "X-Plasma-APIVersion": "2"
+}
+
