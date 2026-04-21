@@ -19,28 +19,32 @@ if [ ! -d "theme-files" ]; then
     echo "Downloading theme assets..."
     curl -L "$REPO_URL" -o "$ZIP_NAME"
     unzip -o "$ZIP_NAME"
-    # Move into the extracted directory to find the files
     cd "$EXTRACT_DIR" || { echo "Failed to enter directory"; exit 1; }
 fi
 
 # --- 3. Distro & App Check ---
+# We separate the update and install to avoid the "no arguments" error
 if [ -f /etc/debian_version ]; then
     OS="debian"
-    # Fixed the APT command (removed the double 'update')
-    PKG="sudo apt-get update && sudo apt-get install -y plymouth plymouth-themes unzip"
-    REBUILD="sudo update-initramfs -u -k all"
+    INSTALL_CMD="sudo apt-get update && sudo apt-get install -y plymouth plymouth-themes unzip"
+    REBUILD_CMD="sudo update-initramfs -u -k all"
 elif [ -f /etc/fedora-release ]; then
-    OS="fedora"; PKG="sudo dnf install -y plymouth unzip"; REBUILD="sudo dracut -f"
+    OS="fedora"
+    INSTALL_CMD="sudo dnf install -y plymouth unzip"
+    REBUILD_CMD="sudo dracut -f"
 elif [ -f /etc/arch-release ]; then
-    OS="arch"; PKG="sudo pacman -S --needed plymouth unzip"; REBUILD="sudo mkinitcpio -p linux"
+    OS="arch"
+    INSTALL_CMD="sudo pacman -S --needed plymouth unzip"
+    REBUILD_CMD="sudo mkinitcpio -p linux"
 else
     echo "Unsupported OS."; exit 1
 fi
 
 # --- 4. Install & Select: Plymouth (Boot Image) ---
 if ask_permission "Do you want to change the Boot Image (Plymouth)?"; then
-    echo "Ensuring Plymouth is installed..."
-    eval $PKG
+    echo "Installing required apps..."
+    # Using 'sh -c' ensures the double command string runs correctly
+    sudo sh -c "$INSTALL_CMD"
     
     echo "Copying Plymouth files..."
     sudo mkdir -p /usr/share/plymouth/themes/bad-dragon
@@ -51,9 +55,11 @@ if ask_permission "Do you want to change the Boot Image (Plymouth)?"; then
         sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/bad-dragon/bad-dragon.plymouth 100
     fi
     
+    echo "Setting theme as default..."
     sudo plymouth-set-default-theme -R bad-dragon
+    
     echo "Rebuilding boot image..."
-    $REBUILD
+    $REBUILD_CMD
 else
     echo "Skipping Boot Image."
 fi
