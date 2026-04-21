@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # --- 1. Preparation & Variables ---
-# This script handles its own downloads if run as a standalone file
 REPO_URL="https://github.com/Fox-Snow16/bd/archive/refs/heads/main.zip"
 ZIP_NAME="bd_theme.zip"
 EXTRACT_DIR="bd-main"
@@ -16,7 +15,6 @@ ask_permission() {
 }
 
 # --- 2. Download and Extract logic ---
-# If theme folders aren't present, download the full repo zip
 if [ ! -d "theme-files" ] || [ ! -d "plasma-theme" ]; then
     echo "Theme assets not found. Downloading from GitHub..."
     curl -L "$REPO_URL" -o "$ZIP_NAME"
@@ -27,7 +25,6 @@ fi
 # --- 3. Distro & App Check ---
 if [ -f /etc/debian_version ]; then
     OS="debian"
-    # We use sh -c later to ensure the '&&' works correctly with sudo
     INSTALL_CMD="apt-get update && apt-get install -y plymouth plymouth-themes unzip"
     REBUILD_CMD="sudo update-initramfs -u -k all"
 elif [ -f /etc/fedora-release ]; then
@@ -54,13 +51,15 @@ if ask_permission "Do you want to change the Boot Image (Plymouth)?"; then
     sudo chmod -R 755 /usr/share/plymouth/themes/bad-dragon
     
     if [ "$OS" == "debian" ]; then
-        echo "Registering theme with the system..."
-        sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/bad-dragon/bad-dragon.plymouth 150
+        echo "Registering 'bad-dragon' theme..."
+        # We use a very high priority (200) to make sure it shows up
+        sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/bad-dragon/bad-dragon.plymouth 200
         
         echo ""
         echo "----------------------------------------------------------"
         echo " ACTION REQUIRED: Select the number for 'bad-dragon' below "
         echo "----------------------------------------------------------"
+        # Forcing the interactive config menu
         sudo update-alternatives --config default.plymouth
     fi
     
