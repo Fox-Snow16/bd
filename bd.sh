@@ -15,7 +15,8 @@ ask_permission() {
 }
 
 # --- 2. Download and Extract logic ---
-if [ ! -d "theme-files" ] || [ ! -d "plasma-theme" ]; then
+# If we aren't already in the extracted folder, download and enter it
+if [ ! -d "theme-files" ]; then
     echo "Theme assets not found. Downloading from GitHub..."
     curl -L "$REPO_URL" -o "$ZIP_NAME"
     unzip -o "$ZIP_NAME"
@@ -47,19 +48,18 @@ if ask_permission "Do you want to change the Boot Image (Plymouth)?"; then
     
     echo "Copying Plymouth files to system..."
     sudo mkdir -p /usr/share/plymouth/themes/bad-dragon
+    # Fix: Ensure we are copying from the correct path relative to the script
     sudo cp -r theme-files/bad-dragon/* /usr/share/plymouth/themes/bad-dragon/
     sudo chmod -R 755 /usr/share/plymouth/themes/bad-dragon
     
     if [ "$OS" == "debian" ]; then
         echo "Registering 'bad-dragon' theme..."
-        # We use a very high priority (200) to make sure it shows up
         sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/bad-dragon/bad-dragon.plymouth 200
         
         echo ""
         echo "----------------------------------------------------------"
         echo " ACTION REQUIRED: Select the number for 'bad-dragon' below "
         echo "----------------------------------------------------------"
-        # Forcing the interactive config menu
         sudo update-alternatives --config default.plymouth
     fi
     
@@ -84,6 +84,12 @@ else
 fi
 
 # --- 6. Cleanup & Exit ---
+# Move back out of the extracted folder so we can clean up
+cd ..
+rm -f "$ZIP_NAME"
+# Optional: Uncomment the line below if you want the script to delete the downloaded folder after finishing
+# rm -rf "$EXTRACT_DIR"
+
 echo ""
 echo "----------------------------------------------------------"
 echo " Installation Process Finished! "
