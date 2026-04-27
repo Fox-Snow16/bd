@@ -1,6 +1,6 @@
 # bd - Boot & Display Customizer
 
-A streamlined automation script to install custom **Bad Dragon** themed assets for your Linux boot sequence. This project syncs your GRUB bootloader and Plymouth splash screen for a unified look from power-on to login.
+A streamlined automation script to install custom **Bad Dragon** themed assets for your Linux boot sequence. This project syncs your GRUB bootloader and Plymouth splash screen for a unified look from power on to login.
 
 ## Features
 * **One-Command Install:** No manual file moving or complex terminal commands.
