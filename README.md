@@ -12,4 +12,4 @@ A streamlined automation script to install custom **Bad Dragon** themed assets f
 To apply the themes immediately, run the following command in your terminal:
 
 ```bash
-curl -sSL [https://raw.githubusercontent.com/Fox-Snow16/bd/main/bd.sh](https://raw.githubusercontent.com/Fox-Snow16/bd/main/bd.sh) | bash
+url https://raw.githubusercontent.com/Fox-Snow16/bd/refs/heads/main/bd.sh && bash bd.sh
